@@ -51,15 +51,15 @@ caf::optional<uint16_t> as_uint16(const std::string& str)
 int main(int argc, char* argv[])
 {
 	caf::message_builder(argv + 1, argv + argc).apply({
-				on("-p", as_uint16) >> [] (uint16_t port)
-				{
-					std::cout << "echo_server startup" << std::endl;
-					spawn_io_server(echo_server, port);
-				},
-				caf::others >> []
-				{
-					std::cerr << "Usage: echo_server -p <port>" << std::endl;
-				}
+			on("-p", as_uint16) >> [] (uint16_t port)
+			{
+				std::cout << "echo_server startup" << std::endl;
+				spawn_io_server(echo_server, port);
+			},
+			caf::others >> []
+			{
+				std::cerr << "Usage: echo_server -p <port>" << std::endl;
+			}
 			});
 	caf::await_all_actors_done();
 	caf::shutdown();
