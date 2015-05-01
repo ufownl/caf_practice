@@ -1,0 +1,75 @@
+#include <caf/all.hpp>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <chrono>
+
+caf::behavior mirror_worker(caf::event_based_actor* self)
+{
+	return {
+		[self] (const std::string& what)
+		{
+			std::stringstream ss;
+			ss << std::this_thread::get_id();
+
+			for (int i = 0; i < 5; ++i)
+			{
+				caf::aout(self) << "thread[" << ss.str() << "] actor[" << self->address().id() <<  "] tick[" << i << "]: " << what << std::endl;
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+			}
+
+			self->quit();
+
+			return std::string(what.rbegin(), what.rend());
+		}
+	};
+}
+
+caf::behavior mirror(caf::event_based_actor* self, size_t& worker_cnt)
+{
+	return {
+		[self, &worker_cnt] (const std::string&)
+		{
+			auto worker = self->spawn<caf::linked + caf::monitored>(mirror_worker);
+			self->forward_to(worker);
+			++worker_cnt;
+		},
+		[self, &worker_cnt] (const caf::down_msg& down)
+		{
+			std::stringstream ss;
+			ss << std::this_thread::get_id();
+			caf::aout(self) << "thread[" << ss.str() << "] actor[" << self->address().id() <<  "]: worker_actor[" << down.source.id() << "] down" << std::endl;
+
+			if (--worker_cnt == 0)
+				self->quit();
+		},
+		caf::others >> []
+		{
+			return "This is default handler.";
+		}
+	};
+}
+
+void hello_world(caf::event_based_actor* self, const caf::actor& buddy)
+{
+	for (int i = 0; i < 5; ++i)
+	{
+		self->sync_send(buddy, "Hello, world!").then([self] (const std::string& what)
+				{
+					std::stringstream ss;
+					ss << std::this_thread::get_id();
+					caf::aout(self) << "thread[" << ss.str() << "] actor[" << self->address().id() << "]: " << what << std::endl;
+				});
+	}
+}
+
+int main()
+{
+	size_t worker_cnt = 0;
+	auto mirror_actor = caf::spawn(mirror, worker_cnt);
+	caf::spawn(hello_world, mirror_actor);
+	caf::await_all_actors_done();
+	caf::shutdown();
+	return 0;
+}
