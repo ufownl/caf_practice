@@ -9,19 +9,19 @@ caf::behavior conn_worker(caf::io::broker* self, caf::io::connection_handle conn
 	return {
 		[self] (const caf::io::new_data_msg& msg)
 		{
-			caf::aout(self) << "connection[" << self->address().id() << "]: " << std::string(msg.buf.begin(), msg.buf.end()) << std::endl;
+			caf::aout(self) << "connection[" << self->address() << "]: " << std::string(msg.buf.begin(), msg.buf.end()) << std::endl;
 
 			self->write(msg.handle, msg.buf.size(), &msg.buf.front());
 		},
 		[self] (const caf::io::connection_closed_msg&)
 		{
-			caf::aout(self) << "connection close: " << self->address().id() << std::endl;
+			caf::aout(self) << "connection close: " << self->address() << std::endl;
 
 			self->quit();
 		},
 		caf::others >> [self]
 		{
-			caf::aout(self) << "unexpected: " << caf::to_string(self->current_message()) << std::endl;
+			caf::aout(self) << "unexpected: " << self->current_message() << std::endl;
 		}
 	};
 }
@@ -34,11 +34,11 @@ caf::behavior echo_server(caf::io::broker* self)
 			auto worker = self->fork(conn_worker, new_conn.handle);
 			self->link_to(worker);
 
-			caf::aout(self) << "new connection: " << worker.address().id() << std::endl;
+			caf::aout(self) << "new connection: " << worker.address() << std::endl;
 		},
 		caf::others >> [self]
 		{
-			caf::aout(self) << "unexpected: " << caf::to_string(self->current_message()) << std::endl;
+			caf::aout(self) << "unexpected: " << self->current_message() << std::endl;
 		}
 	};
 }

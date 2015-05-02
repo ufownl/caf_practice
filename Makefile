@@ -21,11 +21,11 @@ parallel_sort: parallel_sort.o
 typed_hello: typed_hello.o
 	$(LD) $^ $(LDFLAGS) -o $@
 
-hello.o: hello.cpp
+hello.o: hello.cpp util.hpp
 echo_server.o: echo_server.cpp
-concurrency_hello.o: concurrency_hello.cpp
+concurrency_hello.o: concurrency_hello.cpp util.hpp
 parallel_sort.o: parallel_sort.cpp
-typed_hello.o: typed_hello.cpp
+typed_hello.o: typed_hello.cpp util.hpp
 
 clean:
 	$(RM) *.o
