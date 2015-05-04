@@ -59,16 +59,16 @@ int main(int argc, char* argv[])
 	long part_size = 0;
 
 	caf::message_builder(argv + 1, argv + argc).apply({
-			on(as_long, as_long) >> [&total_size, &part_size] (long n, long m)
-			{
-				total_size = n;
-				part_size = m;
-			},
-			caf::others >> []
-			{
-				std::cerr << "Usage: parallel_sort <total_size> <part_size>" << std::endl;
-			}
-		});
+				on(as_long, as_long) >> [&total_size, &part_size] (long n, long m)
+				{
+					total_size = n;
+					part_size = m;
+				},
+				caf::others >> []
+				{
+					std::cerr << "Usage: parallel_sort <total_size> <part_size>" << std::endl;
+				}
+			});
 
 	if (total_size > 0 && part_size > 0)
 	{

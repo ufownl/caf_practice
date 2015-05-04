@@ -29,3 +29,6 @@
 
 # Vim swap files
 *.swp
+
+# Log files
+*.log

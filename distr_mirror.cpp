@@ -1,7 +1,7 @@
 #include <caf/all.hpp>
+#include <caf/io/all.hpp>
 #include <iostream>
 #include <thread>
-#include <chrono>
 #include "util.hpp"
 
 caf::behavior mirror_worker(caf::event_based_actor* self)
@@ -22,23 +22,19 @@ caf::behavior mirror_worker(caf::event_based_actor* self)
 	};
 }
 
-caf::behavior mirror(caf::event_based_actor* self, size_t& worker_cnt)
+caf::behavior mirror(caf::event_based_actor* self)
 {
 	self->trap_exit(true);
 
 	return {
-		[self, &worker_cnt] (const std::string&)
+		[self] (const std::string&)
 		{
 			auto worker = self->spawn<caf::linked>(mirror_worker);
 			self->forward_to(worker);
-			++worker_cnt;
 		},
-		[self, &worker_cnt] (const caf::exit_msg& msg)
+		[self] (const caf::exit_msg& msg)
 		{
 			caf::aout(self) << "thread[" << std::this_thread::get_id() << "] actor[" << self->address() <<  "]: worker_actor[" << msg.source << "] exit" << std::endl;
-
-			if (--worker_cnt == 0)
-				self->quit();
 		},
 		caf::others >> []
 		{
@@ -47,22 +43,25 @@ caf::behavior mirror(caf::event_based_actor* self, size_t& worker_cnt)
 	};
 }
 
-void hello_world(caf::event_based_actor* self, const caf::actor& buddy)
+caf::optional<uint16_t> as_uint16(const std::string& str)
 {
-	for (int i = 0; i < 5; ++i)
-	{
-		self->sync_send(buddy, "Hello, world!").then([self] (const std::string& what)
-				{
-					caf::aout(self) << "thread[" << std::this_thread::get_id() << "] actor[" << self->address() << "]: " << what << std::endl;
-				});
-	}
+	return static_cast<uint16_t>(stoul(str));
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-	size_t worker_cnt = 0;
-	auto mirror_actor = caf::spawn(mirror, worker_cnt);
-	caf::spawn(hello_world, mirror_actor);
+	caf::message_builder(argv + 1, argv + argc).apply({
+				on(as_uint16) >> [] (uint16_t port)
+				{
+					auto mirror_actor = caf::spawn(mirror);
+					port = caf::io::publish(mirror_actor, port, nullptr, true);
+					std::cout << "Mirror_actor has published on port[" << port << "]." << std::endl;
+				},
+				caf::others >> []
+				{
+					std::cerr << "Usage: distr_mirror <port>" << std::endl;
+				}
+			});
 	caf::await_all_actors_done();
 	caf::shutdown();
 	return 0;

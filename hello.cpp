@@ -1,7 +1,6 @@
 #include <caf/all.hpp>
 #include <iostream>
 #include <thread>
-#include <chrono>
 #include "util.hpp"
 
 caf::behavior mirror(caf::event_based_actor* self)
