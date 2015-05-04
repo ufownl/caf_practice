@@ -17,7 +17,7 @@ caf::behavior mirror_worker(caf::event_based_actor* self)
 
 			self->quit();
 
-			return std::string(what.rbegin(), what.rend());
+			return std::to_string(rand()) + std::string(what.rbegin(), what.rend());
 		}
 	};
 }
