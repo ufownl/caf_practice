@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 				{
 					auto mirror_actor = caf::spawn(mirror);
 					port = caf::io::publish(mirror_actor, port, nullptr, true);
-					std::cout << "Mirror_actor has published on port[" << port << "]." << std::endl;
+					std::cout << "mirror_actor has published on port[" << port << "]." << std::endl;
 				},
 				caf::others >> []
 				{
