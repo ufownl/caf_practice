@@ -33,7 +33,7 @@ caf::behavior hello_client(caf::event_based_actor* self, const std::string& host
 			try
 			{
 				auto mirror_actor = caf::io::remote_actor(host, port);
-				self->link_to(mirror_actor);
+				self->monitor(mirror_actor);
 
 				self->spawn<caf::linked>(hello_world, mirror_actor);
 			}
@@ -43,20 +43,19 @@ caf::behavior hello_client(caf::event_based_actor* self, const std::string& host
 				self->send(self, hello_atom::value);
 			}
 		},
+		[self] (const caf::down_msg& msg)
+		{
+			caf::aout(self) << "actor[" << msg.source << "] down_msg: " << caf::exit_reason::as_string(msg.reason) << std::endl;
+
+			if (msg.reason == caf::exit_reason::remote_link_unreachable)
+				self->send(self, hello_atom::value);
+		},
 		[self] (const caf::exit_msg& msg)
 		{
 			caf::aout(self) << "actor[" << msg.source << "] exit_msg: " << caf::exit_reason::as_string(msg.reason) << std::endl;
 
-			switch (msg.reason)
-			{
-			case caf::exit_reason::unhandled_sync_failure:
-				break;
-			case caf::exit_reason::remote_link_unreachable:
-				self->send(self, hello_atom::value);
-				break;
-			default:
+			if (msg.reason != caf::exit_reason::unhandled_sync_failure)
 				self->quit(msg.reason);
-			}
 		},
 		caf::others >> [self]
 		{
