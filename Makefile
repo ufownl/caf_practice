@@ -2,7 +2,7 @@ CXX			= g++
 LD			= g++
 CXXFLAGS	= -std=c++11 -g -Wall -O3
 LDFLAGS		= -lcaf_core -lcaf_io
-TARGETS		= hello echo_server concurrency_hello parallel_sort typed_hello distr_mirror distr_hello distr_typed_mirror distr_typed_hello
+TARGETS		= hello echo_server concurrency_hello parallel_sort typed_hello distr_mirror distr_hello distr_typed_mirror distr_typed_hello hello_group distr_printer_group distr_hello_group
 
 all: $(TARGETS)
 
@@ -33,6 +33,15 @@ distr_typed_mirror: distr_typed_mirror.o
 distr_typed_hello: distr_typed_hello.o
 	$(LD) $^ $(LDFLAGS) -o $@
 
+hello_group: hello_group.o
+	$(LD) $^ $(LDFLAGS) -o $@
+
+distr_printer_group: distr_printer_group.o
+	$(LD) $^ $(LDFLAGS) -o $@
+
+distr_hello_group: distr_hello_group.o
+	$(LD) $^ $(LDFLAGS) -o $@
+
 hello.o: hello.cpp util.hpp
 echo_server.o: echo_server.cpp
 concurrency_hello.o: concurrency_hello.cpp util.hpp
@@ -42,6 +51,9 @@ distr_mirror.o: distr_mirror.cpp util.hpp
 distr_hello.o: distr_hello.cpp util.hpp
 distr_typed_mirror.o: distr_typed_mirror.cpp distr_typed_common.hpp util.hpp
 distr_typed_hello.o: distr_typed_hello.cpp distr_typed_common.hpp util.hpp
+hello_group.o: hello_group.cpp
+distr_printer_group.o: distr_printer_group.cpp
+distr_hello_group.o: distr_hello_group.cpp
 
 clean:
 	$(RM) *.o
