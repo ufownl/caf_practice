@@ -15,8 +15,6 @@ caf::behavior mirror_worker(caf::event_based_actor* self)
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
 
-			self->quit();
-
 			return std::to_string(rand()) + std::string(what.rbegin(), what.rend());
 		}
 	};
@@ -24,17 +22,15 @@ caf::behavior mirror_worker(caf::event_based_actor* self)
 
 caf::behavior mirror(caf::event_based_actor* self)
 {
-	self->trap_exit(true);
+	auto pool = caf::actor_pool::make(4,
+			[self] { return self->spawn(mirror_worker); },
+			caf::actor_pool::round_robin());
+	self->link_to(pool);
 
 	return {
-		[self] (const std::string&)
+		[self, pool] (const std::string&)
 		{
-			auto worker = self->spawn<caf::linked>(mirror_worker);
-			self->forward_to(worker);
-		},
-		[self] (const caf::exit_msg& msg)
-		{
-			caf::aout(self) << "thread[" << std::this_thread::get_id() << "] actor[" << self->address() <<  "]: worker_actor[" << msg.source << "] exit" << std::endl;
+			self->forward_to(pool);
 		},
 		caf::others >> []
 		{
