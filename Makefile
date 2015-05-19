@@ -1,6 +1,6 @@
 CXX			= g++
 LD			= g++
-CXXFLAGS	= -std=c++11 -g -Wall -O3
+CXXFLAGS	= -std=c++11 -g -Wall
 LDFLAGS		= -lcaf_core -lcaf_io
 TARGETS		= hello echo_server concurrency_hello parallel_sort typed_hello distr_mirror distr_hello distr_typed_mirror distr_typed_hello hello_group distr_printer_group distr_hello_group
 
