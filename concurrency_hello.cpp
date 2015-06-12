@@ -61,7 +61,7 @@ void hello_world(caf::event_based_actor* self, const caf::actor& buddy)
 int main()
 {
 	size_t worker_cnt = 0;
-	auto mirror_actor = caf::spawn(mirror, worker_cnt);
+	auto mirror_actor = caf::spawn(mirror, std::ref(worker_cnt));
 	caf::spawn(hello_world, mirror_actor);
 	caf::await_all_actors_done();
 	caf::shutdown();
