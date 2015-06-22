@@ -3,10 +3,7 @@
 #include <iostream>
 #include <string>
 
-using connection = caf::typed_actor<
-	caf::replies_to<caf::io::new_data_msg>::with<void>,
-	caf::replies_to<caf::io::connection_closed_msg>::with<void>
->;
+using connection = caf::io::experimental::minimal_client;
 
 connection::behavior_type conn_worker(connection::broker_pointer self, caf::io::connection_handle conn)
 {
@@ -27,7 +24,7 @@ connection::behavior_type conn_worker(connection::broker_pointer self, caf::io::
 	};
 }
 
-using acceptor = caf::typed_actor<caf::replies_to<caf::io::new_connection_msg>::with<void> >;
+using acceptor = caf::io::experimental::minimal_server;
 
 acceptor::behavior_type echo_server(acceptor::broker_pointer self)
 {
@@ -36,7 +33,10 @@ acceptor::behavior_type echo_server(acceptor::broker_pointer self)
 		{
 			auto worker = self->fork(conn_worker, new_conn.handle);
 			caf::aout(self) << "new connection: " << worker.address() << std::endl;
-		}
+		},
+		[] (const caf::io::new_data_msg&) {},
+		[] (const caf::io::connection_closed_msg&) {},
+		[] (const caf::io::acceptor_closed_msg&) {}
 	};
 }
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 				on(as_uint16) >> [] (uint16_t port)
 				{
 					std::cout << "echo_server startup" << std::endl;
-					spawn_io_server_typed(echo_server, port);
+					caf::io::experimental::spawn_io_server_typed(echo_server, port);
 				},
 				caf::others >> []
 				{
