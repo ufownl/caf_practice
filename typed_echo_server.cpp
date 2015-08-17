@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 				on(as_uint16) >> [] (uint16_t port)
 				{
 					std::cout << "echo_server startup" << std::endl;
-					caf::io::experimental::spawn_io_server_typed(echo_server, port);
+					caf::io::spawn_io_server(echo_server, port);
 				},
 				caf::others >> []
 				{

@@ -30,7 +30,7 @@ void hello_world(caf::event_based_actor* self, const mirror_type& buddy)
 
 int main()
 {
-	auto mirror_actor = caf::spawn_typed(mirror);
+	auto mirror_actor = caf::spawn(mirror);
 	caf::spawn(hello_world, mirror_actor);
 	caf::await_all_actors_done();
 	caf::shutdown();

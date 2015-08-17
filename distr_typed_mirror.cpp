@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	caf::message_builder(argv + 1, argv + argc).apply({
 				on(as_uint16) >> [] (uint16_t port)
 				{
-					auto mirror_actor = caf::spawn_typed(mirror);
+					auto mirror_actor = caf::spawn(mirror);
 					port = caf::io::typed_publish(mirror_actor, port, nullptr, true);
 					std::cout << "typed_mirror_actor has published on port[" << port << "]." << std::endl;
 				},

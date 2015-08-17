@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	caf::message_builder(argv + 1, argv + argc).apply({
 				on(caf::val<std::string>, as_uint16) >> [] (const std::string& host, uint16_t port)
 				{
-					caf::spawn_typed(hello_client, host, port);
+					caf::spawn(hello_client, host, port);
 				},
 				caf::others >> []
 				{
