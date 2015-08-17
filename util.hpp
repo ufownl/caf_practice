@@ -4,15 +4,13 @@
 #include <sstream>
 #include <thread>
 
-namespace std
-{
+namespace std {
 
-	inline std::string to_string(const std::thread::id& tid)
-	{
-		std::stringstream ss;
-		ss << tid;
-		return ss.str();
-	}
+inline std::string to_string(const std::thread::id& tid) {
+	std::stringstream ss;
+	ss << tid;
+	return ss.str();
+}
 
 }
 

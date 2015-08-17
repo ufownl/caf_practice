@@ -1,8 +1,7 @@
 #include <caf/all.hpp>
 #include <iostream>
 
-caf::behavior printer(caf::event_based_actor* self)
-{
+caf::behavior printer(caf::event_based_actor* self) {
 	caf::aout(self) << "printer_actor[" << self->address() << "]" << std::endl;
 
 	auto g = caf::group::get("local", "printer");
@@ -10,15 +9,13 @@ caf::behavior printer(caf::event_based_actor* self)
 	self->send(g, "RangerUFO");
 
 	return {
-		[self] (const std::string& msg)
-		{
+		[self] (const std::string& msg) {
 			caf::aout(self) << "actor[" << self->address() << "]: " << msg << std::endl;
 		}
 	};
 }
 
-void hello(caf::event_based_actor* self)
-{
+void hello(caf::event_based_actor* self) {
 	caf::aout(self) << "hello_actor[" << self->address() << "]" << std::endl;
 
 	auto g = caf::group::anonymous();
@@ -32,8 +29,7 @@ void hello(caf::event_based_actor* self)
 	self->quit(caf::exit_reason::user_shutdown);
 }
 
-int main()
-{
+int main() {
 	caf::spawn(hello);
 	caf::await_all_actors_done();
 	caf::shutdown();
